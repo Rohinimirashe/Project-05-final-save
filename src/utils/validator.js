@@ -50,6 +50,10 @@ const isValidSize = function (input) {
     return ["S", "XS","M","X", "L","XXL", "XL"].indexOf(input) !== -1;  //enum validation
 };
 
+const Shipping = function (input) {
+    return ["true","false"].indexOf(input) !== -1;  
+};
+
 const validInstallment = function isInteger(value) {
     if (value < 0) return false
     if (value % 1 == 0) return true;
@@ -60,5 +64,5 @@ const isValidStatus = function(status) {
 };
 
 
-module.exports = { isValidValue, isValidDetails, isValidNumber, isValidObjectId, validateEmail, validatephone, validatePassword, 
+module.exports = { isValidValue, isValidDetails, isValidNumber, isValidObjectId, validateEmail, validatephone,Shipping, validatePassword, 
         validateChar, /*validateStringNoSpace,*/ isValidPincode, /*validatePrice,*/ isValidSize, validInstallment,  isValidStatus};

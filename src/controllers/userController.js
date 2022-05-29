@@ -102,6 +102,7 @@ const createUser = async (req, res) => {
 
 module.exports.createUser = createUser
 
+// ----------------------------2nd Api-------------------------------------------------------//
 const loginUser = async function (req, res) {
 
 
@@ -135,10 +136,10 @@ const loginUser = async function (req, res) {
         }
 
         var token = jwt.sign(
-            {userId: user._id.toString()},
-             "project-5", {
+            { userId: user._id.toString() },
+            "project-5", {
             expiresIn: '24hr'
-         });
+        });
 
 
 
@@ -151,7 +152,7 @@ const loginUser = async function (req, res) {
 
 module.exports.loginUser = loginUser
 
-
+// -------------------------------------3rd API-------------------------------------------------//
 const getUserProfile = async function (req, res) {
     try {
         const userId = req.params.userId;
@@ -171,71 +172,71 @@ const getUserProfile = async function (req, res) {
 
 module.exports.getUserProfile = getUserProfile
 
-
+// ----------------------------------4th Api---------------------------------------------------//
 const updateUser = async function (req, res) {
     let data = req.body
     let userId = req.params.userId
-    let { fname, lname, email, phone, password, profileImage ,address} = data
+    let { fname, lname, email, phone, password, profileImage, address } = data
 
-    if(!validator.isValidObjectId(userId)){
+    if (!validator.isValidObjectId(userId)) {
         return res.status(400).send({ status: false, message: "Please provide valid objectID" })
     }
 
-    let UserId=await userModel.findById(userId)
-    if(!UserId){
+    let UserId = await userModel.findById(userId)
+    if (!UserId) {
         return res.status(400).send({ status: false, message: "No user found" })
     }
 
-     if(fname == ""){
+    if (fname == "") {
         return res.status(400).send({ status: false, message: "Please provide name" })
- 
-     }
-     else if(fname){
-         if(!validator.isValidValue(fname)) return res.status(400).send({ status: false, message: "Please provide first name" })
 
-     }
+    }
+    else if (fname) {
+        if (!validator.isValidValue(fname)) return res.status(400).send({ status: false, message: "Please provide first name" })
 
-     if(lname == ""){
+    }
+
+    if (lname == "") {
         return res.status(400).send({ status: false, message: "Please provide last name" })
- 
-     }
-     else if(lname){
-         if(!validator.isValidValue(lname)) return res.status(400).send({ status: false, message: "Please provide the last name to update" })
 
-     }
-    
-    if(email == ""){
+    }
+    else if (lname) {
+        if (!validator.isValidValue(lname)) return res.status(400).send({ status: false, message: "Please provide the last name to update" })
+
+    }
+
+    if (email == "") {
         return res.status(400).send({ status: false, message: "Please provide email" })
- 
-     }
-     else if(email){
-         if(!validator.validateEmail(email)) return res.status(400).send({ status: false, message: "Please provide the valid Email Address" })
 
-     }
+    }
+    else if (email) {
+        if (!validator.validateEmail(email)) return res.status(400).send({ status: false, message: "Please provide the valid Email Address" })
 
-     if(phone == ""){
+    }
+
+    if (phone == "") {
         return res.status(400).send({ status: false, message: "Please provide Phone number" })
- 
-     }
-     else if(phone){
-         if(!validator.validatephone(phone)) return res.status(400).send({ status: false, message: "Please provide the valid Phone number" })
 
-     }
+    }
+    else if (phone) {
+        if (!validator.validatephone(phone)) return res.status(400).send({ status: false, message: "Please provide the valid Phone number" })
 
-     if(password == ""){
+    }
+
+    if (password == "") {
         return res.status(400).send({ status: false, message: "Please provide password" })
- 
-     }
-     else if(password){
-         if(!validator.validatePassword(password)) return res.status(400).send({ status: false, message: "Please provide password" })
 
-     }
+    }
+    else if (password) {
+        if (!validator.validatePassword(password)) return res.status(400).send({ status: false, message: "Please provide password" })
+
+    }
     if (password) {
         var salt1 = bcrypt.genSaltSync(10);
 
         var encryptedPassword = bcrypt.hashSync(password, salt1);
     }
-       if(address) {
+    if (address) {
         const address = JSON.parse(data.address)  //converting the address into JSON form
 
 
@@ -249,24 +250,21 @@ const updateUser = async function (req, res) {
         }
     }
 
-    if(profileImage){
-    let files = req.files
+    if (profileImage) {
+        let files = req.files
 
-    if (files && files.length > 0) {
-        var updateImage = await awsConfig.uploadFile(files[0])      //upload to s3 and get the uploaded link
+        if (files && files.length > 0) {
+            var updateImage = await awsConfig.uploadFile(files[0])      //upload to s3 and get the uploaded link
+        }
+        else {
+            return res.status(400).send({ status: false, message: "Please upload your Profile Image" })   //profileImage is mandory
+        }
     }
-    else {
-        return res.status(400).send({ status: false, message: "Please upload your Profile Image" })   //profileImage is mandory
-    }
-}
 
-
-
-
-    const updatedData = await userModel.findOneAndUpdate({ _id: userId }, 
-        { fname: fname, lname: lname, email: email, phone: phone, password: encryptedPassword, profileImage: updateImage ,address:address}, { new: true })
+    const updatedData = await userModel.findOneAndUpdate({ _id: userId },
+        { fname: fname, lname: lname, email: email, phone: phone, password: encryptedPassword, profileImage: updateImage, address: address }, { new: true })
     res.send({ Data: updatedData })
-    console.log(updatedData)
+
 
 }
 module.exports.updateUser = updateUser
