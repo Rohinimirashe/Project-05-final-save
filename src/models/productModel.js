@@ -1,40 +1,40 @@
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({ 
+const productSchema = new mongoose.Schema({
     title: {
-        type: String, 
+        type: String,
         required: true,
         unique: true
     },
     description: {
-        type: String, 
+        type: String,
         required: true
     },
     price: {
-        type: Number, 
+        type: Number,
         required: true
     },
     currencyId: {
-        type: String, 
+        type: String,
         required: true,
     },
     currencyFormat: {
-        type: String, 
+        type: String,
         required: true
     },
     isFreeShipping: {
-        type: Boolean, 
+        type: Boolean,
         default: false
     },
     productImage: {
-        type: String, 
+        type: String,
         required: true
     },  // s3 link
     style: {
         type: String
     },
     availableSizes: {
-        type: [String], 
+        type: [String],
         required: true,
         // enum: ["S", "XS","M","X", "L","XXL", "XL"]
     },
@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema({
     deletedAt: {
         type: Date,
         default: null
-    }, 
+    },
     isDeleted: {
         type: Boolean,
         default: false

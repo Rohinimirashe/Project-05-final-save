@@ -1,33 +1,33 @@
-const mongoose = require("mongoose");   
+const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const orderSchema = new mongoose.Schema({
     userId: {
         type: ObjectId,
-        refs : 'User', 
-        required: true,
-        unique: true
+        refs: 'User',
+        required: true
     },
     items: [{
         productId: {
             type: ObjectId,
             refs: 'Product',
-            required: true,  
+            required: true,
         },
         quantity: {
             type: Number,
             required: true,
             min: 1,
             default: 1
-        }
+        },
+        _id: false
     }],
     totalPrice: {
-        type: Number, 
+        type: Number,
         required: true
         // Holds total price of all the items in the cart
     },
     totalItems: {
-        type: String, 
+        type: Number,
         required: true,
         // Holds total number of items in the cart
     },
@@ -48,7 +48,7 @@ const orderSchema = new mongoose.Schema({
     deletedAt: {
         type: Date,
         default: null
-    }, 
+    },
     isDeleted: {
         type: Boolean,
         default: false

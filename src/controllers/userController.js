@@ -16,11 +16,12 @@ const createUser = async (req, res) => {
             return res.status(400).send({ status: false, message: "Please enter your details to Register" })   //validating the parameters of body
         }
 
-        const { fname, lname, email, phone, password } = data
+        const { fname, lname, email, phone, password, pincode } = data
 
         if (!validator.isValidValue(fname)) {
             return res.status(400).send({ status: false, message: "Please provide the First name" })   //fname is mandory 
         }
+
         if (!validator.isValidValue(lname)) {
             return res.status(400).send({ status: false, message: "Please provide the Last name" })   //lname is mandory 
         }
@@ -49,7 +50,7 @@ const createUser = async (req, res) => {
             return res.status(400).send({ status: false, message: "Please provide the Password" })   //password is mandory 
         }
         if (!validator.validatePassword(password)) {
-            return res.status(400).send({ status: false, message: "Please provide the valid Password" })    //Regex for checking the valid password format 
+            return res.status(400).send({ status: false, message: "password should be between 8-15 characters and atleast 1 character should be in upppercase" })    //Regex for checking the valid password format 
         }
 
         const salt = bcrypt.genSaltSync(10);
@@ -59,15 +60,21 @@ const createUser = async (req, res) => {
         const address = JSON.parse(data.address)  //converting the address into JSON form
 
 
-        if (!address.shipping || (address.shipping && (!address.shipping.street || !address.shipping.city || !address.shipping.pincode))) {
+        if (!address.shipping || (address.shipping && (!address.shipping.street.trim() || !address.shipping.city.trim() || !address.shipping.pincode))) {
             return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
         }
 
 
-        if (!address.billing || (address.billing && (!address.billing.street || !address.billing.city || !address.billing.pincode))) {
+        if (!address.billing || (address.billing && (!address.billing.street.trim() || !address.billing.city.trim() || !address.billing.pincode))) {
             return res.status(400).send({ status: false, message: "Please provid the Billing address" })
         }
+        if (!validator.isValidPincode(address.billing.pincode)) {
+            return res.status(400).send({ status: false, message: "Please provide the valid Pincode" })    //Regex for checking the valid password format 
+        }
 
+        if (!validator.isValidPincode(address.shipping.pincode)) {
+            return res.status(400).send({ status: false, message: "Please provide the valid Pincode" })    //Regex for checking the valid password format 
+        }
 
 
         let files = req.files
@@ -162,6 +169,7 @@ const getUserProfile = async function (req, res) {
 
         const userDetails = await userModel.findById({ _id: userId })
 
+
         if (!userDetails) return res.status(404).send({ status: false, message: "No such User Exists" })
 
         return res.status(200).send({ status: true, message: "User profile details", data: userDetails })
@@ -174,97 +182,97 @@ module.exports.getUserProfile = getUserProfile
 
 // ----------------------------------4th Api---------------------------------------------------//
 const updateUser = async function (req, res) {
-    let data = req.body
-    let userId = req.params.userId
-    let { fname, lname, email, phone, password, profileImage, address } = data
-
-    if (!validator.isValidObjectId(userId)) {
-        return res.status(400).send({ status: false, message: "Please provide valid objectID" })
-    }
-
-    let UserId = await userModel.findById(userId)
-    if (!UserId) {
-        return res.status(400).send({ status: false, message: "No user found" })
-    }
-
-    if (fname == "") {
-        return res.status(400).send({ status: false, message: "Please provide name" })
-
-    }
-    else if (fname) {
-        if (!validator.isValidValue(fname)) return res.status(400).send({ status: false, message: "Please provide first name" })
-
-    }
-
-    if (lname == "") {
-        return res.status(400).send({ status: false, message: "Please provide last name" })
-
-    }
-    else if (lname) {
-        if (!validator.isValidValue(lname)) return res.status(400).send({ status: false, message: "Please provide the last name to update" })
-
-    }
-
-    if (email == "") {
-        return res.status(400).send({ status: false, message: "Please provide email" })
-
-    }
-    else if (email) {
-        if (!validator.validateEmail(email)) return res.status(400).send({ status: false, message: "Please provide the valid Email Address" })
-
-    }
-
-    if (phone == "") {
-        return res.status(400).send({ status: false, message: "Please provide Phone number" })
-
-    }
-    else if (phone) {
-        if (!validator.validatephone(phone)) return res.status(400).send({ status: false, message: "Please provide the valid Phone number" })
-
-    }
-
-    if (password == "") {
-        return res.status(400).send({ status: false, message: "Please provide password" })
-
-    }
-    else if (password) {
-        if (!validator.validatePassword(password)) return res.status(400).send({ status: false, message: "Please provide password" })
-
-    }
-    if (password) {
-        var salt1 = bcrypt.genSaltSync(10);
-
-        var encryptedPassword = bcrypt.hashSync(password, salt1);
-    }
-    if (address) {
-        const address = JSON.parse(data.address)  //converting the address into JSON form
+    try {
+        let data = req.body
+        let userId = req.params.userId
 
 
-        if (!address.shipping || (address.shipping && (!address.shipping.street || !address.shipping.city || !address.shipping.pincode))) {
-            return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
+        let { fname, lname, email, phone, password, profileImage, address } = data
+
+        if (!validator.isValidDetails(data)) {
+            return res.status(400).send({ status: false, msg: "Please enter data to update" });
         }
 
+        if (fname == "") {
+            return res.status(400).send({ status: false, message: "Please provide name" })
 
-        if (!address.billing || (address.billing && (!address.billing.street || !address.billing.city || !address.billing.pincode))) {
-            return res.status(400).send({ status: false, message: "Please provid the Billing address" })
         }
+        else if (fname) {
+            if (!validator.isValidValue(fname)) return res.status(400).send({ status: false, message: "Please provide first name" })
+
+        }
+
+        if (lname == "") {
+            return res.status(400).send({ status: false, message: "Please provide last name" })
+
+        }
+        else if (lname) {
+            if (!validator.isValidValue(lname)) return res.status(400).send({ status: false, message: "Please provide the last name to update" })
+
+        }
+
+        if (email == "") {
+            return res.status(400).send({ status: false, message: "Please provide email" })
+
+        }
+        else if (email) {
+            if (!validator.validateEmail(email)) return res.status(400).send({ status: false, message: "Please provide the valid Email Address" })
+
+        }
+
+        if (phone == "") {
+            return res.status(400).send({ status: false, message: "Please provide Phone number" })
+
+        }
+        else if (phone) {
+            if (!validator.validatephone(phone)) return res.status(400).send({ status: false, message: "Please provide the valid Phone number" })
+
+        }
+
+        if (password == "") {
+            return res.status(400).send({ status: false, message: "Please provide password" })
+
+        }
+        else if (password) {
+            if (!validator.validatePassword(password)) return res.status(400).send({ status: false, message: "Please provide password" })
+
+        }
+        if (password) {
+            var salt1 = bcrypt.genSaltSync(10);
+
+            var encryptedPassword = bcrypt.hashSync(password, salt1);
+        }
+        if (address) {
+            const address = JSON.parse(data.address)  //converting the address into JSON form
+
+
+            if (!address.shipping || (address.shipping && (!address.shipping.street || !address.shipping.city || !address.shipping.pincode))) {
+                return res.status(400).send({ status: false, message: "Please provide the Shipping address" })
+            }
+
+
+            if (!address.billing || (address.billing && (!address.billing.street || !address.billing.city || !address.billing.pincode))) {
+                return res.status(400).send({ status: false, message: "Please provid the Billing address" })
+            }
+        }
+
+        if (profileImage) {
+            let files = req.files
+
+            if (files && files.length > 0) {
+                var updateImage = await awsConfig.uploadFile(files[0])      //upload to s3 and get the uploaded link
+            }
+            else {
+                return res.status(400).send({ status: false, message: "Please upload your Profile Image" })   //profileImage is mandory
+            }
+        }
+
+        const updatedData = await userModel.findOneAndUpdate({ _id: userId },
+            { fname: fname, lname: lname, email: email, phone: phone, password: encryptedPassword, profileImage: updateImage, address: address }, { new: true })
+        res.send({ Data: updatedData })
+    } catch (error) {
+        return res.status(500).send({ status: false, Error: error.message })
     }
-
-    if (profileImage) {
-        let files = req.files
-
-        if (files && files.length > 0) {
-            var updateImage = await awsConfig.uploadFile(files[0])      //upload to s3 and get the uploaded link
-        }
-        else {
-            return res.status(400).send({ status: false, message: "Please upload your Profile Image" })   //profileImage is mandory
-        }
-    }
-
-    const updatedData = await userModel.findOneAndUpdate({ _id: userId },
-        { fname: fname, lname: lname, email: email, phone: phone, password: encryptedPassword, profileImage: updateImage, address: address }, { new: true })
-    res.send({ Data: updatedData })
-
 
 }
 module.exports.updateUser = updateUser
